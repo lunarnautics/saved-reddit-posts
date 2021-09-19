@@ -3,7 +3,7 @@ name: redit-saver
 # Controls when the workflow will run
 on:
   schedule:
-    - cron: '0 12 * * *' # runs at 12:00 UTC everyday
+    - cron: '10 * * * *' # runs every 10 minutes
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
