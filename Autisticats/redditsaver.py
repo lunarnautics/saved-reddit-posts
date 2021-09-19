@@ -12,7 +12,7 @@ from reportlab.lib.units import cm
 from resizeimage import resizeimage
 from PIL import Image as PILImage
 
-from os import listdir, remove
+from os import listdir, remove, environ
 
 #TO DO
 #fix sorting for archived sites
@@ -21,6 +21,10 @@ from os import listdir, remove
 #get more than the past 1000 new posts
 #make sure emoji's work
 #add comments
+
+CLIENT_ID = environ.get("CLIENT_ID")
+CLIENT_SECRET = environ.get("CLIENT_SECRET")
+PASSWORD = environ.get("PASSWORD")
 
 
 #Setup reddit wrapper
