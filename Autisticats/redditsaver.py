@@ -29,7 +29,7 @@ reddit = praw.Reddit(client_id=CLIENT_ID, \
                      client_secret=CLIENT_SECRET, \
                      user_agent='Econiverse', \
                      username='Econiverse', \
-                     password=PASSWORD
+                     password=PASSWORD)
 
 #set subreddit
 sub = reddit.subreddit('Autisticats')
