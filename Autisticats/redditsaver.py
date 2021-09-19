@@ -25,7 +25,7 @@ from os import listdir, remove, environ
 CLIENT_ID = environ.get("CLIENT_ID")
 CLIENT_SECRET = environ.get("CLIENT_SECRET")
 PASSWORD = environ.get("PASSWORD")
-
+SUBREDDIT = environ.get("SUBREDDIT")
 
 #Setup reddit wrapper
 #guide: https://praw.readthedocs.io/en/stable/code_overview/models/submission.html
@@ -36,7 +36,7 @@ reddit = praw.Reddit(client_id=CLIENT_ID, \
                      password=PASSWORD)
 
 #set subreddit
-sub = reddit.subreddit('Autisticats')
+sub = reddit.subreddit(SUBREDDIT)
 
 styleNormal = getSampleStyleSheet()['Normal']
 
