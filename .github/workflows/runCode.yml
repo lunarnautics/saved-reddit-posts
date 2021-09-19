@@ -39,7 +39,7 @@ jobs:
           SUBREDDIT: ${{ 'Autisticats' }}
         run: |
           cd Autisticats
-          python ~/work/saved-reddit-posts/redditsaver.py
+          python ~/work/saved-reddit-posts/saved-reddit-posts/redditsaver.py
           
       - name: commit files
         run: |
