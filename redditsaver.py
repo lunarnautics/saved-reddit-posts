@@ -49,7 +49,7 @@ testFile.close()
 existingFiles = listdir()
 
 #reddit has a limit of 1000
-for submission in sub.new(limit=10):
+for submission in sub.new(limit=1000):
     #Setup title
     original_title = submission.title
     title = ''
