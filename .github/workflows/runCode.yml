@@ -48,7 +48,7 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
           SUBREDDIT: ${{ 'TheGloryHodl' }}
         run: |
-          cd Autisticats
+          cd TheGloryHodl
           python ~/work/saved-reddit-posts/saved-reddit-posts/redditsaver.py
           
       - name: Backup RatioAtBlessons
@@ -58,7 +58,7 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
           SUBREDDIT: ${{ 'RatioAtBlessons' }}
         run: |
-          cd Autisticats
+          cd RatioAtBlessons
           python ~/work/saved-reddit-posts/saved-reddit-posts/redditsaver.py
           
       - name: commit files
