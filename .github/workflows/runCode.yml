@@ -41,6 +41,26 @@ jobs:
           cd Autisticats
           python ~/work/saved-reddit-posts/saved-reddit-posts/redditsaver.py
           
+      - name: Backup TheGloryHodl
+        env: 
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          SUBREDDIT: ${{ 'TheGloryHodl' }}
+        run: |
+          cd Autisticats
+          python ~/work/saved-reddit-posts/saved-reddit-posts/redditsaver.py
+          
+      - name: Backup RatioAtBlessons
+        env: 
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          SUBREDDIT: ${{ 'RatioAtBlessons' }}
+        run: |
+          cd Autisticats
+          python ~/work/saved-reddit-posts/saved-reddit-posts/redditsaver.py
+          
       - name: commit files
         run: |
           git config --local user.email "action@github.com"
