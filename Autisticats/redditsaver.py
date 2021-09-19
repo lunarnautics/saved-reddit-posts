@@ -26,7 +26,7 @@ from os import listdir, remove
 #Setup reddit wrapper
 #guide: https://praw.readthedocs.io/en/stable/code_overview/models/submission.html
 reddit = praw.Reddit(client_id=CLIENT_ID, \
-                     client_secret=CLIENT_SECRET \
+                     client_secret=CLIENT_SECRET, \
                      user_agent='Econiverse', \
                      username='Econiverse', \
                      password=PASSWORD
