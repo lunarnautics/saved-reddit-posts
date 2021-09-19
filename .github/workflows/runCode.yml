@@ -33,14 +33,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install praw reportlab Pillow python-resize-image
           
-      - name: execute py script # run the python script
+      - name: Backup Autisticats
         env: 
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
           PASSWORD: ${{ secrets.PASSWORD }}
+          SUBREDDIT: ${{ 'Autisticats' }}
         run: |
           cd Autisticats
-          python redditsaver.py
+          python ~/saved-reddit-posts/redditsaver.py
           
       - name: commit files
         run: |
@@ -53,5 +54,5 @@ jobs:
       - name: push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: ${{ secrets.reddit_saver }}
+          github_token: ${{ secrets.MY_TOKEN }}
           branch: master  
