@@ -145,12 +145,8 @@ for submission in sub.new(limit=1000):
                 endindex = startindex + 6
                 urlId = submission.url[startindex:endindex]
 
-                print(title)
-                print(permalinkId)
-                print(urlId)
-
+                #compare them
                 if permalinkId != urlId:
-                    print('different')
                     submission = reddit.submission(urlId)
                     content.append(Paragraph('Linked Post Content:', styleNormal))
 
