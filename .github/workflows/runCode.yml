@@ -67,7 +67,7 @@ jobs:
           git config --local user.name "GitHub Action"
           #git pull
           git add -A
-          git commit -m "update data" -a
+          git commit -m "GitHub Action" -a
           
       - name: push changes
         uses: ad-m/github-push-action@v0.6.0
