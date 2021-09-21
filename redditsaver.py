@@ -3,16 +3,14 @@ import praw
 from prawcore.exceptions import Forbidden
 import datetime as dt
 import requests
+from os import listdir, remove
+from resizeimage import resizeimage
+from PIL import Image as PILImage
 
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm
-
-from resizeimage import resizeimage
-from PIL import Image as PILImage
-
-from os import listdir, remove, environ
 
 #TO DO
 #fix sorting for archived sites
@@ -22,6 +20,7 @@ from os import listdir, remove, environ
 #make sure emoji's work
 #add comments
 
+#setup variables that are github secrets
 CLIENT_ID = environ.get("CLIENT_ID")
 CLIENT_SECRET = environ.get("CLIENT_SECRET")
 PASSWORD = environ.get("PASSWORD")
@@ -38,44 +37,67 @@ reddit = praw.Reddit(client_id=CLIENT_ID, \
 #set subreddit
 sub = reddit.subreddit(SUBREDDIT)
 
-styleNormal = getSampleStyleSheet()['Normal']
-
-imgFileName = 'temp.png'
-
-#create a file so there is something to delete later
-testFile = open(imgFileName, "w+")
-testFile.close()
-
-existingFiles = listdir()
-
-#reddit has a limit of 1000
-for submission in sub.new(limit=1000):
-    #Setup title
-    original_title = submission.title
-    title = ''
+#define functions
+#function to make the title sutable for a pdf name
+def CleanTitle(rawTitle):
+    newTitle = ''
 
     #replace special characters and spaces with _
-    for character in submission.title:
+    for character in rawTitle:
         if(character.isalnum()):
-            title = title + character
+            newTitle = newTitle + character
         else:
-            title = title + '_'
+            newTitle = newTitle + '_'
 
-    #truncate if necessary for pdf
-    title = (title[:75]+'..') if len(title) > 75 else title
+    #truncate if necessary for pdf file name
+    newTitle = (newTitle[:75]+'..') if len(newTitle) > 75 else newTitle
+
+    return newTitle
+
+#function to save image to a temp file
+def SaveImg(url,name):
+    #get image data from url and save to file
+    img_data = requests.get(url).content
+
+    #write data to file
+    with open(name, 'wb') as handler:
+       handler.write(img_data)
+
+    #resize image to fit on one page [width,height]
+    img = PILImage.open(name)
+    img = resizeimage.resize_contain(img, [500,600])
+    img.convert('RGB').save(name, img.format)
+    img.close()
+
+#variable for pdf styling
+styleNormal = getSampleStyleSheet()['Normal']
+
+#create 20 files so there is something to delete later..It would be nice to not have temporary image files, but for another day
+for i in range(0,20):
+    imgFileName = 'temp' + str(i) + '.png'
+    testFile = open(imgFileName, "w+")
+    testFile.close()
+
+#get a list of existing files
+existingFiles = listdir()
+
+#for each submission when sorting the sub by new - reddit has a limit of 1000
+for submission in sub.new(limit=1000):
+
+    #make the title sutable for a pdf name and add the unix time and reddit id to make it unique
+    title = CleanTitle(submission.title)
     title = str(submission.created) + '_' + submission.id + '_' + title
 
-
-    #check if file already exists
+    #check if file already exists and if it doesn't build a pdf
     if not title+'.pdf' in existingFiles:
         #create pdf document
         doc = SimpleDocTemplate(title+'.pdf',pagesize=A4,
                             rightMargin=2*cm,leftMargin=2*cm,
                             topMargin=2*cm,bottomMargin=2*cm)
-        #add content
+        #variable used to build content
         content = []
 
-        #header content
+        #build the header
         try:
             content.append(Paragraph('Title: ' + submission.title, styleNormal))
 
@@ -88,38 +110,68 @@ for submission in sub.new(limit=1000):
             content.append(Paragraph('Created ' + dt.datetime.utcfromtimestamp(submission.created_utc).strftime('%Y-%m-%d %H:%M:%S')+' UTC', styleNormal))
             content.append(Paragraph('Permalink: ' + submission.permalink, styleNormal))
             content.append(Paragraph('Url: ' + submission.url, styleNormal))
-            content.append(Paragraph('Is_self: ' + str(submission.is_self), styleNormal))
+            #content.append(Paragraph('Is_self: ' + str(submission.is_self), styleNormal))
         except:
             content.append(Paragraph('HEADER ERROR', styleNormal))
+            print('Header Error!')
 
         #add space between header and body
         content.append(Spacer(1,1*cm))
 
         #body content
         try:
-            #Check what kind of post it is - first check if it is an original text post
+            #Check what kind of post it is - first check if it is an original text post to that sub
             if submission.is_self is True:
                content.append(Paragraph(submission.selftext.replace("\n", "<br />"), styleNormal))
 
             #check if it is a picture post
             elif submission.url.find("i.redd.it") != -1:
                #get image from url and save to file
-               img_data = requests.get(submission.url).content
-               with open(imgFileName, 'wb') as handler:
-                  handler.write(img_data)
-
-               #resize image to fit on one page [width,height]
-               img = PILImage.open(imgFileName)
-               img = resizeimage.resize_contain(img, [500,600])
-               img.convert('RGB').save(imgFileName, img.format)
-               img.close()
+               SaveImg(submission.url,'temp0.png')
 
                #add to content
-               content.append(Image(imgFileName))
+               content.append(Image('temp0.png'))
 
             #check if it is a gallery post (aka more than one picture)
             elif submission.url.find("reddit.com/gallery") != -1:
-               content.append(Paragraph('Body is multiple pictures!', styleNormal))
+                #check if it is a linked post by comparing the ids
+                #get permalink id
+                startindex = submission.permalink.find("/comments/")+10
+                endindex = submission.permalink.find("/",startindex)
+                permalinkId = submission.permalink[startindex:endindex]
+
+                #get url id
+                startindex = submission.url.find("/gallery/")+9
+                endindex = startindex + 6
+                urlId = submission.url[startindex:endindex]
+
+                print(title)
+                print(permalinkId)
+                print(urlId)
+
+                if permalinkId != urlId:
+                    print('different')
+                    submission = reddit.submission(urlId)
+                    content.append(Paragraph('Linked Post Content:', styleNormal))
+
+                #get post metadata
+                image_dict = submission.media_metadata
+                imgCounter = 1
+
+                #search it for images
+                for image_item in image_dict.values():
+                    largest_image = image_item['s']
+                    image_url = largest_image['u']
+                    imgTitle = 'temp' + str(imgCounter) + '.png'
+
+                    #save them as temp images
+                    SaveImg(image_url,imgTitle)
+
+                    #add to content
+                    content.append(Image(imgTitle))
+
+                    #add 1 to imgCounter
+                    imgCounter = imgCounter + 1
 
             #check if it is a video
             elif submission.url.find("v.redd.it") != -1:
@@ -141,12 +193,14 @@ for submission in sub.new(limit=1000):
 
                #get the body but try first - this can fail if sub is now private or whatever else if forbidden
                try:
-                      content.append(Paragraph(submission.selftext.replace("\n", "<br />"), styleNormal))
+                   content.append(Paragraph('Linked Post Content:', styleNormal))
+                   content.append(Paragraph(submission.selftext.replace("\n", "<br />"), styleNormal))
                except Forbidden:
                    content.append(Paragraph('Forbidden!', styleNormal))
         except:
             #if all above fails, print error for the body
             content.append(Paragraph('BODY ERROR!', styleNormal))
+            print('Body Error!')
 
         #build/save the file
         try:
@@ -155,5 +209,7 @@ for submission in sub.new(limit=1000):
             print("did not build!")
 
 
-#remove temp img img
-remove(imgFileName)
+#remove temp img
+for i in range(0,20):
+    imgFileName = 'temp' + str(i) + '.png'
+    remove(imgFileName)
