@@ -1,8 +1,8 @@
 #! usr/bin/env python3
 import praw
-from prawcore.exceptions import Forbidden
-import datetime as dt
 import requests
+import datetime as dt
+from prawcore.exceptions import Forbidden
 from os import listdir, remove, environ
 from resizeimage import resizeimage
 from PIL import Image as PILImage
@@ -73,7 +73,7 @@ def SaveImg(url,name):
 styleNormal = getSampleStyleSheet()['Normal']
 
 #create 20 files so there is something to delete later..It would be nice to not have temporary image files, but for another day
-for i in range(0,20):
+for i in range(0,21):
     imgFileName = 'temp' + str(i) + '.png'
     testFile = open(imgFileName, "w+")
     testFile.close()
@@ -156,15 +156,19 @@ for submission in sub.new(limit=1000):
 
                 #search it for images
                 for image_item in image_dict.values():
-                    largest_image = image_item['s']
-                    image_url = largest_image['u']
-                    imgTitle = 'temp' + str(imgCounter) + '.png'
+                    try:
+                        #this can fail for gifs and deleted posts
+                        largest_image = image_item['s']
+                        image_url = largest_image['u']
+                        imgTitle = 'temp' + str(imgCounter) + '.png'
 
-                    #save them as temp images
-                    SaveImg(image_url,imgTitle)
+                        #save them as temp images
+                        SaveImg(image_url,imgTitle)
 
-                    #add to content
-                    content.append(Image(imgTitle))
+                        #add to content
+                        content.append(Image(imgTitle))
+                    except:
+                        print('failed to save image')
 
                     #add 1 to imgCounter
                     imgCounter = imgCounter + 1
@@ -196,6 +200,7 @@ for submission in sub.new(limit=1000):
         except:
             #if all above fails, print error for the body
             content.append(Paragraph('BODY ERROR!', styleNormal))
+            print(title)
             print('Body Error!')
 
         #build/save the file
@@ -204,8 +209,7 @@ for submission in sub.new(limit=1000):
         except:
             print("did not build!")
 
-
 #remove temp img
-for i in range(0,20):
+for i in range(0,21):
     imgFileName = 'temp' + str(i) + '.png'
     remove(imgFileName)
