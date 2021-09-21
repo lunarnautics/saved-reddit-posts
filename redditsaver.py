@@ -3,7 +3,7 @@ import praw
 from prawcore.exceptions import Forbidden
 import datetime as dt
 import requests
-from os import listdir, remove
+from os import listdir, remove, environ
 from resizeimage import resizeimage
 from PIL import Image as PILImage
 
