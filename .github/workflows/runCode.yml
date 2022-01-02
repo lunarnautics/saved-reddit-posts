@@ -34,6 +34,16 @@ jobs:
           cd Autisticats
           python ~/work/saved-reddit-posts/saved-reddit-posts/redditsaver.py
           
+      - name: Backup GME
+        env: 
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          SUBREDDIT: ${{ 'GME' }}
+        run: |
+          cd GME
+          python ~/work/saved-reddit-posts/saved-reddit-posts/redditsaver.py
+          
       - name: Backup TheGloryHodl
         env: 
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
