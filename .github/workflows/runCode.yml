@@ -44,6 +44,16 @@ jobs:
           cd GME
           python ~/work/saved-reddit-posts/saved-reddit-posts/redditsaver.py
           
+      - name: Backup DDintoGME
+        env: 
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          SUBREDDIT: ${{ 'DDintoGME' }}
+        run: |
+          cd DDintoGME
+          python ~/work/saved-reddit-posts/saved-reddit-posts/redditsaver.py
+          
       - name: Backup TheGloryHodl
         env: 
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
