@@ -1,6 +1,5 @@
 #! usr/bin/env python3
-import praw
-import requests
+import praw ,requests
 import datetime as dt
 from prawcore.exceptions import Forbidden
 from os import listdir, remove, environ
